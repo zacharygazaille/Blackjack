@@ -338,5 +338,4 @@ public class Blackjack {
  * Make it so theres a small wait time / animation between dealer picking card
  * Add bets
  * Add a message when the deck is shuffled
- * test from pc
  */
