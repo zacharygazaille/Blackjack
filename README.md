@@ -1,3 +1,3 @@
 # Blackjack
 
-<h1 align="left"> Card game created using Java</h1>
+<p align="left"> Card game created using Java</p>
