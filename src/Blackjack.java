@@ -268,7 +268,7 @@ public class Blackjack {
             standButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     
-                    while (dealerSum < 17) {
+                    while (reduceDealerAce() < 17) {
                         Card card = deck.remove(deck.size()-1);
                         dealerSum += card.getValue();
                         dealerAceCount += card.isAce() ? 1 : 0;
@@ -388,4 +388,5 @@ public class Blackjack {
  * Add bets
  * change colour of buttons
  * Add a message when the deck is shuffled
+ * Fix bug where when a bunch of hands are played, the game throws exception index -1 out of bounds
  */
