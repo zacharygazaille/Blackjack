@@ -186,7 +186,7 @@ public class Blackjack {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         gamePanel.setLayout(null);
-        gamePanel.setBackground(new Color(0, 102, 51)); //change background r g b
+        gamePanel.setBackground(new Color(70, 70, 70)); //change background r g b
         frame.add(gamePanel);
 
         hitButton.setBounds(20, boardHeight - 100, 80, 40); // move buttons
@@ -337,5 +337,6 @@ public class Blackjack {
  * add double, split buttons
  * Make it so theres a small wait time / animation between dealer picking card
  * Add bets
+ * Add ability to change themes
  * Add a message when the deck is shuffled
  */
