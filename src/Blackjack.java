@@ -388,4 +388,5 @@ public class Blackjack {
  * Add bets
  * change colour of buttons
  * Add a message when the deck is shuffled
+ * Fix bug where dealer will occasionally stand below 17 if player is below 17
  */
