@@ -59,6 +59,7 @@ public class Blackjack {
     int themeChanges = 0;
     String cardTheme = "darkCards";
     Color myGold = new Color(179, 147, 60); // Color gold
+    boolean isNextRoundButtonTrue = false;
 
     int cardWidth = 110; //ratio should be 1/1.4
     int cardHeight = 154;
@@ -124,9 +125,6 @@ public class Blackjack {
                 if (!standButton.isEnabled()) {
                     dealerSum = reduceDealerAce();
                     playerSum = reducePlayerAce();
-                    System.out.println("STAND:");
-                    System.out.println(dealerSum);
-                    System.out.println(playerSum);
 
                     String message = "";
                     if (playerSum > 21) {
@@ -155,51 +153,56 @@ public class Blackjack {
                     g.setFont(new Font("Arial", Font.BOLD, 30)); //change win / lose font
                     g.drawString(message, 50, 260);
 
-                    JButton nextRoundButton = new JButton("Next Round");
-                    nextRoundButton.setBounds(boardWidth - 160, boardHeight - 100, 120, 40); // move buttons
-                    gamePanel.add(nextRoundButton);
-                    nextRoundButton.setFocusable(false);
+                    if (isNextRoundButtonTrue == false) {
+                        JButton nextRoundButton = new JButton("Next Round");
+                        nextRoundButton.setBounds(boardWidth - 160, boardHeight - 100, 120, 40); // move buttons
+                        gamePanel.add(nextRoundButton);
+                        nextRoundButton.setFocusable(false);
+                        isNextRoundButtonTrue = true;
 
-                    nextRoundButton.addActionListener(new ActionListener() { 
-                        public void actionPerformed(ActionEvent e) {
-                            hitButton.setEnabled(true);
-                            standButton.setEnabled(true);
-                            gamePanel.remove(nextRoundButton);
-                            gamePanel.repaint();
+                        nextRoundButton.addActionListener(new ActionListener() { 
+                            public void actionPerformed(ActionEvent e) {
+                                hitButton.setEnabled(true);
+                                standButton.setEnabled(true);
+                                gamePanel.remove(nextRoundButton);
+                                isNextRoundButtonTrue = false;
+                                gamePanel.repaint();
 
-                            playerHand.clear();
-                            dealerHand.clear();
+                                playerHand.clear();
+                                dealerHand.clear();
 
-                            //dealer
-                            dealerSum = 0;
-                            dealerAceCount = 0;
+                                //dealer
+                                dealerSum = 0;
+                                dealerAceCount = 0;
 
-                            hiddenCard = deck.remove(deck.size()-1); //remove card at last index
-                            dealerSum += hiddenCard.getValue();
-                            dealerAceCount += hiddenCard.isAce() ? 1 : 0;
+                                hiddenCard = deck.remove(deck.size()-1); //remove card at last index
+                                dealerSum += hiddenCard.getValue();
+                                dealerAceCount += hiddenCard.isAce() ? 1 : 0;
 
-                            Card card = deck.remove(deck.size()-1);
-                            dealerSum += card.getValue();
-                            dealerAceCount += card.isAce() ? 1 : 0;
-                            dealerHand.add(card);
+                                Card card = deck.remove(deck.size()-1);
+                                dealerSum += card.getValue();
+                                dealerAceCount += card.isAce() ? 1 : 0;
+                                dealerHand.add(card);
 
-                            //player
-                            playerSum = 0;
-                            playerAceCount = 0;
-                            for (int i = 0; i < 2; i++) {
-                                card = deck.remove(deck.size()-1);
-                                playerSum += card.getValue();
-                                playerAceCount += card.isAce() ? 1 : 0;
-                                playerHand.add(card);
+                                //player
+                                playerSum = 0;
+                                playerAceCount = 0;
+                                for (int i = 0; i < 2; i++) {
+                                    card = deck.remove(deck.size()-1);
+                                    playerSum += card.getValue();
+                                    playerAceCount += card.isAce() ? 1 : 0;
+                                    playerHand.add(card);
+                                }
+
+                                if (playerSum == 21 || dealerSum == 21) {
+                                    hitButton.setEnabled(false);
+                                    standButton.setEnabled(false);
+                                }
                             }
+                        });
 
-                            if (playerSum == 21 || dealerSum == 21) {
-                                hitButton.setEnabled(false);
-                                standButton.setEnabled(false);
-                            }
-                        }
-                    });
-
+                    }
+                    
                  }
 
             } catch (Exception e) {
@@ -385,5 +388,4 @@ public class Blackjack {
  * Add bets
  * change colour of buttons
  * Add a message when the deck is shuffled
- * Fix bug where, if theme button is pressed wen next round button is visible, next round button can be clicked multiple times
  */
