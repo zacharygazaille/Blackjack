@@ -175,10 +175,12 @@ public class Blackjack {
                                 dealerSum = 0;
                                 dealerAceCount = 0;
 
+                                emptyDeckShuffle();
                                 hiddenCard = deck.remove(deck.size()-1); //remove card at last index
                                 dealerSum += hiddenCard.getValue();
                                 dealerAceCount += hiddenCard.isAce() ? 1 : 0;
 
+                                emptyDeckShuffle();
                                 Card card = deck.remove(deck.size()-1);
                                 dealerSum += card.getValue();
                                 dealerAceCount += card.isAce() ? 1 : 0;
@@ -188,6 +190,7 @@ public class Blackjack {
                                 playerSum = 0;
                                 playerAceCount = 0;
                                 for (int i = 0; i < 2; i++) {
+                                    emptyDeckShuffle();
                                     card = deck.remove(deck.size()-1);
                                     playerSum += card.getValue();
                                     playerAceCount += card.isAce() ? 1 : 0;
@@ -248,14 +251,11 @@ public class Blackjack {
         if (dealerSum != 21 && playerSum != 21) {
             hitButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
+                    emptyDeckShuffle();
                     Card card = deck.remove(deck.size()-1);
                     playerSum += card.getValue();
                     playerAceCount += card.isAce() ? 1 : 0;
                     playerHand.add(card);
-                    if (deck.size() == 0) {
-                        buildDeck();
-                        shuffleDeck();
-                    }
                     if (reducePlayerAce() > 21) { //A + 2 + J --> 1 + 2 + J
                         hitButton.setEnabled(false);
                         standButton.setEnabled(false);
@@ -269,6 +269,7 @@ public class Blackjack {
                 public void actionPerformed(ActionEvent e) {
                     
                     while (reduceDealerAce() < 17) {
+                        emptyDeckShuffle();
                         Card card = deck.remove(deck.size()-1);
                         dealerSum += card.getValue();
                         dealerAceCount += card.isAce() ? 1 : 0;
@@ -299,36 +300,27 @@ public class Blackjack {
         dealerSum = 0;
         dealerAceCount = 0;
 
+        emptyDeckShuffle();
         hiddenCard = deck.remove(deck.size()-1); //remove card at last index
         dealerSum += hiddenCard.getValue();
         dealerAceCount += hiddenCard.isAce() ? 1 : 0;
-        if (deck.size() == 0) {
-            buildDeck();
-            shuffleDeck();
-        }
 
+        emptyDeckShuffle();
         Card card = deck.remove(deck.size()-1);
         dealerSum += card.getValue();
         dealerAceCount += card.isAce() ? 1 : 0;
         dealerHand.add(card);
-        if (deck.size() == 0) {
-            buildDeck();
-            shuffleDeck();
-        }
 
         //player
         playerHand = new ArrayList<Card>();
         playerSum = 0;
         playerAceCount = 0;
         for (int i = 0; i < 2; i++) {
+            emptyDeckShuffle();
             card = deck.remove(deck.size()-1);
             playerSum += card.getValue();
             playerAceCount += card.isAce() ? 1 : 0;
             playerHand.add(card);
-            if (deck.size() == 0) {
-                buildDeck();
-                shuffleDeck();
-            }
         }
 
     }
@@ -380,6 +372,13 @@ public class Blackjack {
         return dealerSum;
     }
 
+    public void emptyDeckShuffle() {
+        if (deck.size() == 0) {
+            buildDeck();
+            shuffleDeck();
+        }
+    }
+
 }
 
 /* Things to improve:
@@ -388,5 +387,5 @@ public class Blackjack {
  * Add bets
  * change colour of buttons
  * Add a message when the deck is shuffled
- * Fix bug where when a bunch of hands are played, the game throws exception index -1 out of bounds
+ * Make deck size check into one function
  */
