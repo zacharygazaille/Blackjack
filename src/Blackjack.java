@@ -33,7 +33,7 @@ public class Blackjack {
         }
 
         public String getImagePath() {
-            return "./cards/" + toString() + ".png";
+            return "./"+cardTheme+"/" + toString() + ".png";
         }
     }
     
@@ -55,6 +55,11 @@ public class Blackjack {
     int boardWidth = 900; // change board size
     int boardHeight = 600;
 
+    boolean firstTimeThrough = true;
+    int themeChanges = 0;
+    String cardTheme = "darkCards";
+    Color myGold = new Color(179, 147, 60); // Color gold
+
     int cardWidth = 110; //ratio should be 1/1.4
     int cardHeight = 154;
 
@@ -65,8 +70,9 @@ public class Blackjack {
             super.paintComponent(g);
 
             try {
+
                 //draw hidden card
-                Image hiddenCardImg = new ImageIcon(getClass().getResource("./cards/BACK.png")).getImage();
+                Image hiddenCardImg = new ImageIcon(getClass().getResource("./"+cardTheme+"/BACK.png")).getImage();
                 if (!standButton.isEnabled()) {
                     hiddenCardImg = new ImageIcon(getClass().getResource(hiddenCard.getImagePath())).getImage();
                 }
@@ -84,6 +90,35 @@ public class Blackjack {
                     Card card = playerHand.get(i);
                     Image cardImg = new ImageIcon(getClass().getResource(card.getImagePath())).getImage();
                     g.drawImage(cardImg, 20 + (cardWidth + 5)*i, 320, cardWidth, cardHeight, null);
+                }
+
+                String themeMessage = "";
+                g.setFont(new Font("Arial", Font.BOLD, 15)); //change theme font
+                if (themeChanges % 2 == 0) {
+                    themeMessage = "Dark";
+                    g.setColor(myGold);
+                    g.drawString(themeMessage, boardWidth-85, 40);
+                    gamePanel.setBackground(new Color(100, 0, 0));
+                    cardTheme = "darkCards";
+                }
+                else {
+                    themeMessage = "Light";
+                    g.setColor(Color.white);
+                    g.drawString(themeMessage, boardWidth-85, 40);
+                    gamePanel.setBackground(new Color(0, 100, 0));
+                    cardTheme = "lightCards";
+                }                 
+
+                if (!themeButton.isEnabled()) { // change themes
+                    if (themeChanges % 2 == 0) {
+                        themeButton.setEnabled(true);
+                        themeChanges++;
+                    }
+                    else {
+                        themeButton.setEnabled(true);
+                        themeChanges++;
+                    }       
+                    gamePanel.repaint();           
                 }
 
                 if (!standButton.isEnabled()) {
@@ -118,7 +153,6 @@ public class Blackjack {
                     }
 
                     g.setFont(new Font("Arial", Font.BOLD, 30)); //change win / lose font
-                    g.setColor(Color.white);
                     g.drawString(message, 50, 260);
 
                     JButton nextRoundButton = new JButton("Next Round");
@@ -126,7 +160,7 @@ public class Blackjack {
                     gamePanel.add(nextRoundButton);
                     nextRoundButton.setFocusable(false);
 
-                    nextRoundButton.addActionListener(new ActionListener() { // find a way to make this restart the game
+                    nextRoundButton.addActionListener(new ActionListener() { 
                         public void actionPerformed(ActionEvent e) {
                             hitButton.setEnabled(true);
                             standButton.setEnabled(true);
@@ -175,6 +209,7 @@ public class Blackjack {
     };
     JButton hitButton = new JButton("Hit");
     JButton standButton = new JButton("Stand");
+    JButton themeButton = new JButton("Theme");
 
     Blackjack() {
         startGame(); //start game
@@ -186,7 +221,7 @@ public class Blackjack {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         gamePanel.setLayout(null);
-        gamePanel.setBackground(new Color(70, 70, 70)); //change background r g b
+        gamePanel.setBackground(new Color(100, 0, 0)); //change background r g b
         frame.add(gamePanel);
 
         hitButton.setBounds(20, boardHeight - 100, 80, 40); // move buttons
@@ -195,6 +230,17 @@ public class Blackjack {
         standButton.setBounds(115, boardHeight - 100, 80, 40);
         gamePanel.add(standButton);
         standButton.setFocusable(false);
+        themeButton.setBounds(boardWidth - 180, 20, 75, 30);
+        gamePanel.add(themeButton);
+        themeButton.setFocusable(false);
+
+        themeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                firstTimeThrough = false;
+                themeButton.setEnabled(false);
+                gamePanel.repaint();
+            }
+        });
 
         if (dealerSum != 21 && playerSum != 21) {
             hitButton.addActionListener(new ActionListener() {
@@ -337,7 +383,7 @@ public class Blackjack {
  * add double, split buttons
  * Make it so theres a small wait time / animation between dealer picking card
  * Add bets
- * Add ability to change themes
  * change colour of buttons
  * Add a message when the deck is shuffled
+ * Fix bug where, if theme button is pressed wen next round button is visible, next round button can be clicked multiple times
  */
