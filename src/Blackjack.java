@@ -338,5 +338,6 @@ public class Blackjack {
  * Make it so theres a small wait time / animation between dealer picking card
  * Add bets
  * Add ability to change themes
+ * change colour of buttons
  * Add a message when the deck is shuffled
  */
