@@ -1,5 +1,7 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.*;
@@ -97,10 +99,12 @@ public class Blackjack {
                     cardTheme = "lightCards";
                 }
 
-                g.drawString("Bet:", 20, 285);
-                g.drawString("Balance: "+String.valueOf(playerBalance), 20, 230);
+                NumberFormat formatter = new DecimalFormat("#0.00");
+                g.drawString("Bet:", 20, 300);
+                playerBalance = Math.round(playerBalance * 100) / (double)100;
+                g.drawString("Balance: "+String.valueOf(formatter.format(playerBalance)), 20, 255);
                 if (displayBet) {
-                    g.drawString(String.valueOf(betAmount), 75, 285);
+                    g.drawString(String.valueOf(formatter.format(betAmount)), 75, 300);
                 }
 
                 g.setFont(new Font("Arial", Font.BOLD, 30)); //change bet message
@@ -108,7 +112,7 @@ public class Blackjack {
 
                 if (startButton.isEnabled()) { // start menu
                     g.setFont(new Font("Arial", Font.BOLD, 140));
-                    g.drawString("Blackjack", 20, 155);
+                    g.drawString("Blackjack", 110, 185);
                     String[] menuCards = {"/BACK.png", "/A-H.png", "/A-S.png", "/A-D.png", "/A-C.png", "/BACK.png"};
                     for (int i = 0; i < 6; i++) {
                         Image cardImg = new ImageIcon(getClass().getResource("./"+cardTheme+menuCards[i])).getImage();
@@ -210,6 +214,7 @@ public class Blackjack {
                             public void actionPerformed(ActionEvent e) {
                                 try {
                                     betAmount = Double.parseDouble(betField.getText());
+                                    betAmount = Math.round(betAmount * 100) / (double)100;
                                     if (betAmount < 0.01) {
                                         betMessage = "Bet amount is too small";
                                         displayMessage = false;
@@ -217,6 +222,7 @@ public class Blackjack {
                                         betMessage = "Bet amount exceeds player balance";
                                         displayMessage = false;
                                     } else {
+                                        doubleButton.setVisible(true);
                                         betMessage = "";
                                         playerBalance -= betAmount;
                                         hitButton.setEnabled(true);
@@ -257,6 +263,7 @@ public class Blackjack {
                                         addBet = true;
                                         displayMessage = true;
                                         if (playerSum == 21 || dealerSum == 21) {
+                                            doubleButton.setVisible(false);
                                             hitButton.setEnabled(false);
                                             standButton.setEnabled(false);
                                         }
@@ -284,6 +291,8 @@ public class Blackjack {
     JButton standButton = new JButton("Stand");
     JButton themeButton = new JButton("Theme");
     JTextField betField = new JTextField(20);
+    JButton doubleButton = new JButton("Double");
+    JButton resetBalance = new JButton("Reset");
 
     Blackjack() {
         startGame(); //start game
@@ -306,6 +315,14 @@ public class Blackjack {
         gamePanel.add(standButton);
         standButton.setFocusable(false);
         standButton.setVisible(false);
+        doubleButton.setBounds(210, boardHeight - 100, 80, 40); // move buttons
+        gamePanel.add(doubleButton);
+        doubleButton.setFocusable(false);
+        doubleButton.setVisible(false);
+        resetBalance.setBounds(20, 190, 67, 25); // move buttons
+        gamePanel.add(resetBalance);
+        resetBalance.setFocusable(false);
+        resetBalance.setVisible(false);
         themeButton.setBounds(boardWidth - 180, 20, 75, 30);
         gamePanel.add(themeButton);
         themeButton.setFocusable(false);
@@ -317,20 +334,25 @@ public class Blackjack {
             public void actionPerformed(ActionEvent e) {
                 try {
                     betAmount = Double.parseDouble(betField.getText());
+                    betAmount = Math.round(betAmount * 100) / (double)100;
+
                     if (betAmount < 0.01) {
                         betMessage = "Bet amount is too small";
                     } else if (betAmount > playerBalance) {
                         betMessage = "Bet amount exceeds player balance";
                     } else{
+                        resetBalance.setVisible(true);
                         betMessage = "";
                         playerBalance -= betAmount;
                         hitButton.setVisible(true);
                         standButton.setVisible(true);
+                        doubleButton.setVisible(true);
                         startButton.setEnabled(false);
                         gamePanel.remove(startButton);
                         gamePanel.remove(betField);
                         displayBet = true;
                         if (playerSum == 21 || dealerSum == 21) {
+                            doubleButton.setVisible(false);
                             hitButton.setEnabled(false);
                             standButton.setEnabled(false);
                         }
@@ -345,7 +367,7 @@ public class Blackjack {
         });
         
         betField.setFont(new Font("Arial", Font.BOLD, 24));
-        betField.setBounds(85, 260, 80, 30);
+        betField.setBounds(80, 275, 80, 30);
         gamePanel.add(betField);
 
         themeButton.addActionListener(new ActionListener() {
@@ -356,9 +378,17 @@ public class Blackjack {
             }
         });
 
+        resetBalance.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                playerBalance = 5000.0;
+                gamePanel.repaint();
+            }
+        });
+
         hitButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 emptyDeckShuffle();
+                doubleButton.setVisible(false);
                 Card card = deck.remove(deck.size()-1);
                 playerSum += card.getValue();
                 playerAceCount += card.isAce() ? 1 : 0;
@@ -374,7 +404,7 @@ public class Blackjack {
 
         standButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                    
+                doubleButton.setVisible(false);
                 while (reduceDealerAce() < 17) {
                     emptyDeckShuffle();
                     Card card = deck.remove(deck.size()-1);
@@ -385,6 +415,27 @@ public class Blackjack {
                 hitButton.setEnabled(false);
                 standButton.setEnabled(false);
                 gamePanel.repaint();
+            }
+        });
+
+        doubleButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                doubleButton.setVisible(false);
+                playerBalance -= betAmount;
+                betAmount *= 2;
+                Card card = deck.remove(deck.size()-1);
+                playerSum += card.getValue();
+                playerAceCount += card.isAce() ? 1 : 0;
+                playerHand.add(card);
+                while (reduceDealerAce() < 17) {
+                    emptyDeckShuffle();
+                    Card dealerCard = deck.remove(deck.size()-1);
+                    dealerSum += dealerCard.getValue();
+                    dealerAceCount += dealerCard.isAce() ? 1 : 0;
+                    dealerHand.add(dealerCard);
+                }
+                hitButton.setEnabled(false);
+                standButton.setEnabled(false);
             }
         });
 
@@ -504,15 +555,9 @@ public class Blackjack {
 }
 
 /* Things to improve:
- * add double, split buttons
- * Make it so theres a small wait time / animation between dealer picking card
+ * add split button
  * change colour of buttons
  * Add a message when the deck is shuffled
  * remove overwrite hand functions
- * make it so 2 decimal places are displayed for bets/balance
- * make it so bets/balance are rounded to two decimal place
- * 
- * (Double button: add to panel, if hit button or stand button pressed, remove double button,
- * if player or dealer sum = 21, remove double button, if nextroundbutton pressed, add double button,
- * if double button pressed, remove double button, remove playerbet for playbalance again, gamepanel repaint)
+ * make comments nicer
  */
