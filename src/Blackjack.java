@@ -50,6 +50,7 @@ public class Blackjack {
     ArrayList<Card> playerHand;
     int playerSum;
     int playerAceCount;
+    int playerBalance = 5000;
 
     //window
     int boardWidth = 900; // change board size
@@ -72,43 +73,60 @@ public class Blackjack {
 
             try {
 
-                //draw hidden card
-                Image hiddenCardImg = new ImageIcon(getClass().getResource("./"+cardTheme+"/BACK.png")).getImage();
-                if (!standButton.isEnabled()) {
-                    hiddenCardImg = new ImageIcon(getClass().getResource(hiddenCard.getImagePath())).getImage();
-                }
-                g.drawImage(hiddenCardImg, 20, 20, cardWidth, cardHeight, null);
-
-                //draw dealer's hand
-                for (int i = 0; i < dealerHand.size(); i++) {
-                    Card card = dealerHand.get(i);
-                    Image cardImg = new ImageIcon(getClass().getResource(card.getImagePath())).getImage();
-                    g.drawImage(cardImg, cardWidth + 25 + (cardWidth + 5)*i, 20, cardWidth, cardHeight, null);
-                }
-
-                //draw player's hand
-                for (int i = 0; i < playerHand.size(); i++) {
-                    Card card = playerHand.get(i);
-                    Image cardImg = new ImageIcon(getClass().getResource(card.getImagePath())).getImage();
-                    g.drawImage(cardImg, 20 + (cardWidth + 5)*i, 320, cardWidth, cardHeight, null);
-                }
-
-                String themeMessage = "";
-                g.setFont(new Font("Arial", Font.BOLD, 15)); //change theme font
+                String themeMessage = ""; //change theme font
                 if (themeChanges % 2 == 0) {
                     themeMessage = "Dark";
                     g.setColor(myGold);
+                    g.setFont(new Font("Arial", Font.BOLD, 15));
                     g.drawString(themeMessage, boardWidth-85, 40);
+                    g.setFont(new Font("Arial", Font.BOLD, 25));
+                    g.drawString("Bet:", 20, 285);
+                    g.drawString("Balance: "+String.valueOf(playerBalance), 20, 230);
                     gamePanel.setBackground(new Color(100, 0, 0));
                     cardTheme = "darkCards";
-                }
-                else {
+                } else {
                     themeMessage = "Light";
                     g.setColor(Color.white);
+                    g.setFont(new Font("Arial", Font.BOLD, 15));
                     g.drawString(themeMessage, boardWidth-85, 40);
+                    g.setFont(new Font("Arial", Font.BOLD, 25));
+                    g.drawString("Bet:", 20, 285);
+                    g.drawString("Balance: "+String.valueOf(playerBalance), 20, 230);
                     gamePanel.setBackground(new Color(0, 100, 0));
                     cardTheme = "lightCards";
-                }                 
+                }
+
+                if (startButton.isEnabled()) { // start menu
+                    g.setFont(new Font("Arial", Font.BOLD, 140));
+                    g.drawString("Blackjack", 20, 155);
+                    String[] menuCards = {"/BACK.png", "/A-H.png", "/A-S.png", "/A-D.png", "/A-C.png", "/BACK.png"};
+                    for (int i = 0; i < 6; i++) {
+                        Image cardImg = new ImageIcon(getClass().getResource("./"+cardTheme+menuCards[i])).getImage();
+                        g.drawImage(cardImg, 95 + (cardWidth + 5)*i, 320, cardWidth, cardHeight, null);
+                    }
+
+                } else {
+                    //draw hidden card
+                    Image hiddenCardImg = new ImageIcon(getClass().getResource("./"+cardTheme+"/BACK.png")).getImage();
+                    if (!standButton.isEnabled()) {
+                        hiddenCardImg = new ImageIcon(getClass().getResource(hiddenCard.getImagePath())).getImage();
+                    }
+                    g.drawImage(hiddenCardImg, 20, 20, cardWidth, cardHeight, null);
+
+                    //draw dealer's hand
+                    for (int i = 0; i < dealerHand.size(); i++) {
+                        Card card = dealerHand.get(i);
+                        Image cardImg = new ImageIcon(getClass().getResource(card.getImagePath())).getImage();
+                        g.drawImage(cardImg, cardWidth + 25 + (cardWidth + 5)*i, 20, cardWidth, cardHeight, null);
+                    }
+
+                    //draw player's hand
+                    for (int i = 0; i < playerHand.size(); i++) {
+                        Card card = playerHand.get(i);
+                        Image cardImg = new ImageIcon(getClass().getResource(card.getImagePath())).getImage();
+                        g.drawImage(cardImg, 20 + (cardWidth + 5)*i, 320, cardWidth, cardHeight, null);
+                    }
+                }      
 
                 if (!themeButton.isEnabled()) { // change themes
                     if (themeChanges % 2 == 0) {
@@ -151,7 +169,7 @@ public class Blackjack {
                     }
 
                     g.setFont(new Font("Arial", Font.BOLD, 30)); //change win / lose font
-                    g.drawString(message, 50, 260);
+                    g.drawString(message, 330, 260);
 
                     if (isNextRoundButtonTrue == false) {
                         JButton nextRoundButton = new JButton("Next Round");
@@ -166,7 +184,6 @@ public class Blackjack {
                                 standButton.setEnabled(true);
                                 gamePanel.remove(nextRoundButton);
                                 isNextRoundButtonTrue = false;
-                                gamePanel.repaint();
 
                                 playerHand.clear();
                                 dealerHand.clear();
@@ -196,6 +213,7 @@ public class Blackjack {
                                     playerAceCount += card.isAce() ? 1 : 0;
                                     playerHand.add(card);
                                 }
+                                gamePanel.repaint();
 
                                 if (playerSum == 21 || dealerSum == 21) {
                                     hitButton.setEnabled(false);
@@ -213,9 +231,11 @@ public class Blackjack {
             }
         }
     };
+    JButton startButton = new JButton("Start Game");
     JButton hitButton = new JButton("Hit");
     JButton standButton = new JButton("Stand");
     JButton themeButton = new JButton("Theme");
+    JTextField betField = new JTextField(20);
 
     Blackjack() {
         startGame(); //start game
@@ -233,12 +253,35 @@ public class Blackjack {
         hitButton.setBounds(20, boardHeight - 100, 80, 40); // move buttons
         gamePanel.add(hitButton);
         hitButton.setFocusable(false);
+        hitButton.setVisible(false);
         standButton.setBounds(115, boardHeight - 100, 80, 40);
         gamePanel.add(standButton);
         standButton.setFocusable(false);
+        standButton.setVisible(false);
         themeButton.setBounds(boardWidth - 180, 20, 75, 30);
         gamePanel.add(themeButton);
         themeButton.setFocusable(false);
+        startButton.setBounds(boardWidth / 2 - 73, boardHeight - 100, 120, 40);
+        gamePanel.add(startButton);
+        startButton.setFocusable(false);
+
+        startButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                hitButton.setVisible(true);
+                standButton.setVisible(true);
+                startButton.setEnabled(false);
+                gamePanel.remove(startButton);
+                if (playerSum == 21 || dealerSum == 21) {
+                    hitButton.setEnabled(false);
+                    standButton.setEnabled(false);
+                }
+                gamePanel.repaint();
+            }
+        });
+        
+        betField.setFont(new Font("Arial", Font.BOLD, 24));
+        betField.setBounds(85, 260, 80, 30);
+        gamePanel.add(betField);
 
         themeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -248,43 +291,37 @@ public class Blackjack {
             }
         });
 
-        if (dealerSum != 21 && playerSum != 21) {
-            hitButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    emptyDeckShuffle();
-                    Card card = deck.remove(deck.size()-1);
-                    playerSum += card.getValue();
-                    playerAceCount += card.isAce() ? 1 : 0;
-                    playerHand.add(card);
-                    if (reducePlayerAce() > 21) { //A + 2 + J --> 1 + 2 + J
-                        hitButton.setEnabled(false);
-                        standButton.setEnabled(false);
-                    }
-
-                    gamePanel.repaint();
-                }
-            });
-
-            standButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    
-                    while (reduceDealerAce() < 17) {
-                        emptyDeckShuffle();
-                        Card card = deck.remove(deck.size()-1);
-                        dealerSum += card.getValue();
-                        dealerAceCount += card.isAce() ? 1 : 0;
-                        dealerHand.add(card);
-                    }
+        hitButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                emptyDeckShuffle();
+                Card card = deck.remove(deck.size()-1);
+                playerSum += card.getValue();
+                playerAceCount += card.isAce() ? 1 : 0;
+                playerHand.add(card);
+                if (reducePlayerAce() > 21) { //A + 2 + J --> 1 + 2 + J
                     hitButton.setEnabled(false);
                     standButton.setEnabled(false);
-                    gamePanel.repaint();
                 }
-            });
-        }
-        else {
-            hitButton.setEnabled(false);
-            standButton.setEnabled(false);
-        }
+
+                gamePanel.repaint();
+            }
+        });
+
+        standButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                    
+                while (reduceDealerAce() < 17) {
+                    emptyDeckShuffle();
+                    Card card = deck.remove(deck.size()-1);
+                    dealerSum += card.getValue();
+                    dealerAceCount += card.isAce() ? 1 : 0;
+                    dealerHand.add(card);
+                }
+                hitButton.setEnabled(false);
+                standButton.setEnabled(false);
+                gamePanel.repaint();
+            }
+        });
 
         gamePanel.repaint();
     }
@@ -379,6 +416,26 @@ public class Blackjack {
         }
     }
 
+    public void overwritePlayerHand() { // for testing purposes
+        playerHand.clear();
+        playerSum = 0;
+        playerHand.add(new Card("A","C"));
+        playerHand.add(new Card("J", "H"));
+        for (int i = 0; i < 2; i++) {
+            playerSum += playerHand.get(i).getValue();
+        }
+    }
+
+    public void overwriteDealerHand() { // for testing purposes
+        dealerHand.clear();
+        dealerSum = 0;
+        playerHand.add(new Card("A","D"));
+        playerHand.add(new Card("J", "S"));
+        for (int i = 0; i < 2; i++) {
+            playerSum += dealerHand.get(i).getValue();
+        }
+    }
+
 }
 
 /* Things to improve:
@@ -387,5 +444,7 @@ public class Blackjack {
  * Add bets
  * change colour of buttons
  * Add a message when the deck is shuffled
- * Make deck size check into one function
+ * Make it to betField disappears when next round button pressed, but reappears at end of rounds. can't press
+ * next round button or start button until a bet is placed.
+ * remove overwrite hand functions
  */
