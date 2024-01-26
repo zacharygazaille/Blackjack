@@ -164,6 +164,13 @@ public class Blackjack {
 
                 if (!standButton.isEnabled() && splitHandNum == 0) {
                     if (isSplit) {
+                        while (reduceDealerAce() < 17) { /////// fixn reduced dealerace, as it is looking at the whole deck
+                            emptyDeckShuffle();
+                            Card card = deck.remove(deck.size()-1);
+                            dealerSum += card.getValue();
+                            dealerAceCount += card.isAce() ? 1 : 0;
+                            dealerHand.add(card);
+                        }
                         isSplit = false;
                         splitSums.add(playerSum);
 
@@ -341,6 +348,7 @@ public class Blackjack {
 
                     nextHandButton.addActionListener(new ActionListener() { 
                         public void actionPerformed(ActionEvent e) {
+                            playerAceCount = 0;
                             gamePanel.remove(nextHandButton);
                             splitHandNum -= 1;
                             playerSum = 0;
@@ -349,6 +357,10 @@ public class Blackjack {
                             }
                             Card card = deck.remove(deck.size()-1);
                             playerHand.add(card);
+                            for (int i = splitHandNum; i < splitHandNum + 2; i++) {
+                                Card splitCard = playerHand.get(i);
+                                playerAceCount += splitCard.isAce() ? 1 : 0;
+                            }
                             playerSum += playerHand.get(playerHand.size()-1).getValue();
                             playerSum += playerHand.get(playerHand.size()-2).getValue();
                             hitButton.setEnabled(true);
@@ -535,8 +547,13 @@ public class Blackjack {
                 isSplit = true;
                 totalSplits +=1;
                 splitHandNum+=1;
+                playerAceCount = 0;
                 Card card = deck.remove(deck.size()-1);
                 playerHand.add(card);
+                for (int i = splitHandNum; i < splitHandNum + 2; i++) {
+                    Card splitCard = playerHand.get(i);
+                    playerAceCount += splitCard.isAce() ? 1 : 0;
+                }
                 playerSum = 0;
                 playerSum += playerHand.get(splitHandNum).getValue();
                 playerSum += playerHand.get(splitHandNum+1).getValue();
@@ -674,7 +691,11 @@ public class Blackjack {
  * 
  * ( * work out bets, if bet is 5, then 5 should be removed from balance for every bet, if double pressed, 5 should be removed
  * but bet should only display 10 for that hand and revert to 5 after
- * fix error where bet still being displayed at end of round under betfield after a split)
+ * fix error where bet still being displayed at end of round under betfield after a split (gamepanel.repaint)
+ * make it so double or split can't be performed if it will send balance into the negatives.
+ * make the split loss/win display start new line every 3 hands
+ * 
+ * FIX ERROR where on a split, if you bust on the last hand, the dealer won't hand doesn't go to 17
  * 
  * add modularity
  */
