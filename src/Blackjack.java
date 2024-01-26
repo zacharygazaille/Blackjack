@@ -164,7 +164,7 @@ public class Blackjack {
 
                 if (!standButton.isEnabled() && splitHandNum == 0) {
                     if (isSplit) {
-                        while (reduceDealerAce() < 17) { /////// fixn reduced dealerace, as it is looking at the whole deck
+                        while (reduceDealerAce() < 17) { /////// fix reduced dealerace, as it is looking at the whole deck
                             emptyDeckShuffle();
                             Card card = deck.remove(deck.size()-1);
                             dealerSum += card.getValue();
@@ -612,7 +612,7 @@ public class Blackjack {
         for (int i = 0; i < deckNumber; i++) {
             for (int j = 0; j < types.length; j++) {
                 for (int k = 0; k < values.length; k++) {
-                    Card card = new Card(values[k], types[j]); //Edit here if you want to make the deck two decks long for a total of 104 cards
+                    Card card = new Card(values[k], types[j]);
                     deck.add(card);
                 }
             }
