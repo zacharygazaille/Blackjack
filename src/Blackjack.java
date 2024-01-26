@@ -58,6 +58,10 @@ public class Blackjack {
     boolean addBet = true;
     boolean displayMessage = true;
     boolean displayBet = false;
+    int totalSplits = 0;
+    int splitHandNum = 0;
+    boolean isSplit = false;
+    ArrayList<Integer> splitSums = new ArrayList<Integer>();
 
     //window
     int boardWidth = 900; // change board size
@@ -107,6 +111,10 @@ public class Blackjack {
                     g.drawString(String.valueOf(formatter.format(betAmount)), 75, 300);
                 }
 
+                if (isSplit == true) {
+                    g.drawString("Hand "+String.valueOf(splitHandNum+1), 200, 300);
+                }
+
                 g.setFont(new Font("Arial", Font.BOLD, 30)); //change bet message
                 g.drawString(betMessage, 250, 260);
 
@@ -122,7 +130,7 @@ public class Blackjack {
                 } else {
                     //draw hidden card
                     Image hiddenCardImg = new ImageIcon(getClass().getResource("./"+cardTheme+"/BACK.png")).getImage();
-                    if (!standButton.isEnabled()) {
+                    if (!standButton.isEnabled() && splitHandNum == 0) {
                         hiddenCardImg = new ImageIcon(getClass().getResource(hiddenCard.getImagePath())).getImage();
                     }
                     g.drawImage(hiddenCardImg, 20, 20, cardWidth, cardHeight, null);
@@ -135,10 +143,10 @@ public class Blackjack {
                     }
 
                     //draw player's hand
-                    for (int i = 0; i < playerHand.size(); i++) {
+                    for (int i = splitHandNum; i < playerHand.size(); i++) {
                         Card card = playerHand.get(i);
                         Image cardImg = new ImageIcon(getClass().getResource(card.getImagePath())).getImage();
-                        g.drawImage(cardImg, 20 + (cardWidth + 5)*i, 320, cardWidth, cardHeight, null);
+                        g.drawImage(cardImg, 20 + (cardWidth + 5)*(i-splitHandNum), 320, cardWidth, cardHeight, null);
                     }
                 }      
 
@@ -154,51 +162,81 @@ public class Blackjack {
                     gamePanel.repaint();           
                 }
 
-                if (!standButton.isEnabled()) {
-                    dealerSum = reduceDealerAce();
-                    playerSum = reducePlayerAce();
+                if (!standButton.isEnabled() && splitHandNum == 0) {
+                    if (isSplit) {
+                        isSplit = false;
+                        splitSums.add(playerSum);
 
-                    String message = "";
-                    if (playerSum > 21) {
-                        message = "You go bust!";
-                    }
-                    else if (dealerSum > 21) {
-                        message = "Dealer goes bust!";
-                        if (addBet == true) {
-                            playerBalance += 2 * betAmount;
+                        String message = "";
+                        for (int i = 0; i < splitSums.size(); i++) {
+                            message = message + "Hand " + String.valueOf(totalSplits+1) + ": ";
+                            if (splitSums.get(i) > 21) {
+                                message += "Loss";
+                            } else if (splitSums.get(i) > dealerSum) {
+                                message += "Win";
+                            } else if (dealerSum > 21) {
+                                message += "Win";
+                            } else if (splitSums.get(i) < dealerSum) {
+                                message += "Loss";
+                            } else {
+                                message += "Push";
+                            }
+                            if (totalSplits != 0) {
+                                message += ", ";
+                            }
+                            totalSplits -= 1;
                         }
-                    }
-                    //both you and dealer <= 21
-                    else if (playerSum == dealerSum) {
-                        message = "Push!";
-                        if (addBet == true) {
-                            playerBalance += betAmount;
+                        if (displayMessage == true){
+                            g.setFont(new Font("Arial", Font.BOLD, 25));
+                            g.drawString(message, 250, 260);
                         }
-                    }
-                    else if (playerSum == 21 && playerHand.size() == 2) {
-                        message = ("Blackjack!");
-                        if (addBet == true) {
-                            playerBalance += 2.5 * betAmount;
-                        }
-                    }
-                    else if (dealerSum == 21 && dealerHand.size() == 1) {
-                        message = ("Dealer has Blackjack!");
-                    }
-                    else if (playerSum > dealerSum) {
-                        message = ("You win!");
-                        if (addBet == true) {
-                            playerBalance += 2 * betAmount;
-                        }
-                    }
-                    else if (playerSum < dealerSum) {
-                        message = "Dealer wins!";
-                    }
-                    addBet = false;
-                    gamePanel.repaint();
+                    } else {
+                        dealerSum = reduceDealerAce();
+                        playerSum = reducePlayerAce();
 
-                    if (displayMessage == true){
-                        g.setFont(new Font("Arial", Font.BOLD, 30));
-                        g.drawString(message, 250, 260);
+                        String message = "";
+                        if (playerSum > 21) {
+                            message = "You go bust!";
+                        }
+                        else if (dealerSum > 21) {
+                            message = "Dealer goes bust!";
+                            if (addBet == true) {
+                                playerBalance += 2 * betAmount;
+                            }
+                        }
+                        //both you and dealer <= 21
+                        else if (playerSum == dealerSum) {
+                            message = "Push!";
+                            if (addBet == true) {
+                                playerBalance += betAmount;
+                            }
+                        }
+                        else if (playerSum == 21 && playerHand.subList(splitHandNum, playerHand.size()).size() == 2) {
+                            message = ("Blackjack!");
+                            if (addBet == true) {
+                                playerBalance += 2.5 * betAmount;
+                            }
+                        }
+                        else if (dealerSum == 21 && dealerHand.size() == 1) {
+                            message = ("Dealer has Blackjack!");
+                        }
+                        else if (playerSum > dealerSum) {
+                            message = ("You win!");
+                            if (addBet == true) {
+                                playerBalance += 2 * betAmount;
+                            }
+                        }
+                        else if (playerSum < dealerSum) {
+                            message = "Dealer wins!";
+                        }
+                        addBet = false;
+                        gamePanel.repaint();
+
+                        if (displayMessage == true){
+                            g.setFont(new Font("Arial", Font.BOLD, 30));
+                            g.drawString(message, 250, 260);
+                        }
+                        
                     }
 
                     if (isNextRoundButtonTrue == false) {
@@ -213,6 +251,8 @@ public class Blackjack {
                         nextRoundButton.addActionListener(new ActionListener() { 
                             public void actionPerformed(ActionEvent e) {
                                 try {
+                                    splitSums.clear();
+                                    totalSplits = 0;
                                     betAmount = Double.parseDouble(betField.getText());
                                     betAmount = Math.round(betAmount * 100) / (double)100;
                                     if (betAmount < 0.01) {
@@ -281,9 +321,44 @@ public class Blackjack {
                             }
                         });
 
+                    }                     
+                 } else if (!standButton.isEnabled()) {
+                    String splitMessage = "";
+                    if (playerSum > 21) {
+                        splitMessage = "You go bust!";
                     }
-                    
-                 }
+
+                    if (displayMessage == true){
+                        g.setFont(new Font("Arial", Font.BOLD, 30));
+                        g.drawString(splitMessage, 250, 260);
+                    }
+
+                    splitSums.add(playerSum);
+                    JButton nextHandButton = new JButton("Next Hand");
+                    nextHandButton.setBounds(boardWidth - 160, boardHeight - 100, 120, 40); // move buttons
+                    gamePanel.add(nextHandButton);
+                    nextHandButton.setFocusable(false);
+
+                    nextHandButton.addActionListener(new ActionListener() { 
+                        public void actionPerformed(ActionEvent e) {
+                            gamePanel.remove(nextHandButton);
+                            splitHandNum -= 1;
+                            playerSum = 0;
+                            for (int i = playerHand.size()-1; i > splitHandNum; i--){
+                                playerHand.remove(i);
+                            }
+                            Card card = deck.remove(deck.size()-1);
+                            playerHand.add(card);
+                            playerSum += playerHand.get(playerHand.size()-1).getValue();
+                            playerSum += playerHand.get(playerHand.size()-2).getValue();
+                            hitButton.setEnabled(true);
+                            standButton.setEnabled(true);
+                            splitButton.setVisible(false);
+                            doubleButton.setVisible(true);
+                            gamePanel.repaint();
+                        }
+                    });
+                }
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -361,12 +436,7 @@ public class Blackjack {
                         gamePanel.remove(startButton);
                         gamePanel.remove(betField);
                         displayBet = true;
-                        if (playerSum == 21 || dealerSum == 21) {
-                            doubleButton.setVisible(false);
-                            splitButton.setVisible(false);
-                            hitButton.setEnabled(false);
-                            standButton.setEnabled(false);
-                        } else if (playerHand.get(0).getValue() == playerHand.get(1).getValue()){
+                        if (playerHand.get(0).getValue() == playerHand.get(1).getValue()){
                             splitButton.setVisible(true);
                         }
                     }
@@ -420,12 +490,14 @@ public class Blackjack {
             public void actionPerformed(ActionEvent e) {
                 splitButton.setVisible(false);
                 doubleButton.setVisible(false);
-                while (reduceDealerAce() < 17) {
-                    emptyDeckShuffle();
-                    Card card = deck.remove(deck.size()-1);
-                    dealerSum += card.getValue();
-                    dealerAceCount += card.isAce() ? 1 : 0;
-                    dealerHand.add(card);
+                if (splitHandNum == 0) {
+                    while (reduceDealerAce() < 17) {
+                        emptyDeckShuffle();
+                        Card card = deck.remove(deck.size()-1);
+                        dealerSum += card.getValue();
+                        dealerAceCount += card.isAce() ? 1 : 0;
+                        dealerHand.add(card);
+                    }
                 }
                 hitButton.setEnabled(false);
                 standButton.setEnabled(false);
@@ -443,30 +515,36 @@ public class Blackjack {
                 playerSum += card.getValue();
                 playerAceCount += card.isAce() ? 1 : 0;
                 playerHand.add(card);
-                while (reduceDealerAce() < 17) {
-                    emptyDeckShuffle();
-                    Card dealerCard = deck.remove(deck.size()-1);
-                    dealerSum += dealerCard.getValue();
-                    dealerAceCount += dealerCard.isAce() ? 1 : 0;
-                    dealerHand.add(dealerCard);
+                if (splitHandNum == 0){
+                    while (reduceDealerAce() < 17) {
+                        emptyDeckShuffle();
+                        Card dealerCard = deck.remove(deck.size()-1);
+                        dealerSum += dealerCard.getValue();
+                        dealerAceCount += dealerCard.isAce() ? 1 : 0;
+                        dealerHand.add(dealerCard);
+                    }
                 }
                 hitButton.setEnabled(false);
                 standButton.setEnabled(false);
+                gamePanel.repaint();
             }
         });
 
         splitButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                splitButton.setVisible(false);
-                ArrayList<ArrayList<Card>> splitHands = new ArrayList<>();
-                for (int i = 0; i < 2; i++) {
-                    ArrayList<Card> temp = new ArrayList<>();
-                    temp.add(playerHand.get(i));
-                    emptyDeckShuffle();
-                    Card card = deck.remove(deck.size()-1);
-                    temp.add(card);
-                    splitHands.add(temp);
+                isSplit = true;
+                totalSplits +=1;
+                splitHandNum+=1;
+                Card card = deck.remove(deck.size()-1);
+                playerHand.add(card);
+                playerSum = 0;
+                playerSum += playerHand.get(splitHandNum).getValue();
+                playerSum += playerHand.get(splitHandNum+1).getValue();
+
+                if (playerHand.get(splitHandNum).getValue() != playerHand.get(splitHandNum+1).getValue()) {
+                    splitButton.setVisible(false);
                 }
+                gamePanel.repaint();
             }
         });
 
@@ -594,7 +672,9 @@ public class Blackjack {
  * 
  * remove playerhandoverwrite
  * 
- * (make it so you actually play the two split decks. Have it display a message "Hand 1", "Hand 2"
- * make it so you can split more than once in a row. maybe add a next button when playing split decks
- * to switch between the decks.)
+ * ( * work out bets, if bet is 5, then 5 should be removed from balance for every bet, if double pressed, 5 should be removed
+ * but bet should only display 10 for that hand and revert to 5 after
+ * fix error where bet still being displayed at end of round under betfield after a split)
+ * 
+ * add modularity
  */
