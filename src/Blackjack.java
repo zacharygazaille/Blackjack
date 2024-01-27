@@ -117,7 +117,7 @@ public class Blackjack {
                 }
 
                 g.setFont(new Font("Arial", Font.BOLD, 30)); //change bet message
-                g.drawString(betMessage, 250, 260);
+                g.drawString(betMessage, 290, 260);
 
                 if (startButton.isEnabled()) { // start menu
                     g.setFont(new Font("Arial", Font.BOLD, 140));
@@ -197,7 +197,7 @@ public class Blackjack {
                             g.setFont(new Font("Arial", Font.BOLD, 25));
                             int y = 240;
                             for (String line : message.split("\n")) {
-                                g.drawString(line, 250, y);
+                                g.drawString(line, 290, y);
                                 y+=35;
                             }
                         }
@@ -247,7 +247,7 @@ public class Blackjack {
 
                         if (displayMessage == true){
                             g.setFont(new Font("Arial", Font.BOLD, 30));
-                            g.drawString(message, 250, 260);
+                            g.drawString(message, 290, 260);
                         }
                         
                     }
@@ -446,8 +446,6 @@ public class Blackjack {
                     } else if (betAmount > playerBalance) {
                         betMessage = "Bet amount exceeds player balance";
                     } else {
-                        overwritePlayerHand(); // remove<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-                        //overwriteDealerHand(); ///////////////////////////////////////////////////////
                         resetBalance.setVisible(true);
                         betMessage = "";
                         playerBalance -= betAmount;
@@ -458,10 +456,11 @@ public class Blackjack {
                         gamePanel.remove(startButton);
                         gamePanel.remove(betField);
                         displayBet = true;
-                        if (dealerSum == 21) {
-                            hitButton.setEnabled(false);
-                            splitButton.setEnabled(false);
+                        if (dealerSum == 21 || playerSum == 21) {
                             doubleButton.setVisible(false);
+                            splitButton.setVisible(false);
+                            hitButton.setEnabled(false);
+                            standButton.setEnabled(false);
                         }
                         if (playerHand.get(0).getValue() == playerHand.get(1).getValue()){
                             splitButton.setVisible(true);
@@ -604,6 +603,7 @@ public class Blackjack {
         dealerSum += card.getValue();
         dealerAceCount += card.isAce() ? 1 : 0;
         dealerHand.add(card);
+        //overwriteDealerHand(); ///////////////////////////////////////////////////////
 
         //player
         playerHand = new ArrayList<Card>();
@@ -616,6 +616,7 @@ public class Blackjack {
             playerAceCount += card.isAce() ? 1 : 0;
             playerHand.add(card);
         }
+        overwritePlayerHand(); // remove<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     }
 
@@ -676,7 +677,7 @@ public class Blackjack {
     public void overwritePlayerHand() { // for testing purposes
         playerHand.clear();
         playerSum = 0;
-        playerHand.add(new Card("Q","C"));
+        playerHand.add(new Card("J","C"));
         playerHand.add(new Card("J", "H"));
         for (int i = 0; i < 2; i++) {
             playerSum += playerHand.get(i).getValue();
@@ -705,11 +706,9 @@ public class Blackjack {
  * 
  * ( * work out bets, if bet is 5, then 5 should be removed from balance for every bet, if double pressed, 5 should be removed
  * but bet should only display 10 for that hand and revert to 5 after
- * fix error where bet still being displayed at end of round under betfield after a split (gamepanel.repaint)
  * make it so double or split can't be performed if it will send balance into the negatives.
  * 
- * Fix error where dealer and player blackjack on start game doesn't stop game
- * ERROR, where player over 21 sometimes doesnt bust on start game
- * 
+ * themeMessage "Dark", "Light" appears under the dealer's cards
+ *  
  * add modularity
  */
