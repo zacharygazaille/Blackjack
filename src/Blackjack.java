@@ -57,6 +57,7 @@ public class Blackjack {
     Double betDisplay;
     String betMessage = "";
     boolean addBet = true;
+    String shuffleMessage = "";
     boolean displayMessage = true;
     boolean displayBet = false;
     int totalSplits = 0;
@@ -90,22 +91,17 @@ public class Blackjack {
                 String themeMessage = ""; //change theme font
                 if (themeChanges % 2 == 0) {
                     themeMessage = "Dark";
-                    g.setColor(myGold);
-                    g.setFont(new Font("Arial", Font.BOLD, 15));
-                    g.drawString(themeMessage, boardWidth-85, 40);
-                    g.setFont(new Font("Arial", Font.BOLD, 25));
+                    g.setColor(myGold);                
                     gamePanel.setBackground(new Color(100, 0, 0));
                     cardTheme = "darkCards";
                 } else {
                     themeMessage = "Light";
                     g.setColor(Color.white);
-                    g.setFont(new Font("Arial", Font.BOLD, 15));
-                    g.drawString(themeMessage, boardWidth-85, 40);
-                    g.setFont(new Font("Arial", Font.BOLD, 25));
                     gamePanel.setBackground(new Color(0, 100, 0));
                     cardTheme = "lightCards";
                 }
 
+                g.setFont(new Font("Arial", Font.BOLD, 25));
                 NumberFormat formatter = new DecimalFormat("#0.00");
                 g.drawString("Bet:", 20, 300);
                 playerBalance = Math.round(playerBalance * 100) / (double)100;
@@ -120,6 +116,8 @@ public class Blackjack {
 
                 g.setFont(new Font("Arial", Font.BOLD, 30)); //change bet message
                 g.drawString(betMessage, 290, 260);
+                g.setFont(new Font("Arial", Font.BOLD, 20));
+                g.drawString(shuffleMessage, 112, 209);/////////////////////////////////////////////
 
                 if (startButton.isEnabled()) { // start menu
                     g.setFont(new Font("Arial", Font.BOLD, 140));
@@ -129,7 +127,8 @@ public class Blackjack {
                         Image cardImg = new ImageIcon(getClass().getResource("./"+cardTheme+menuCards[i])).getImage();
                         g.drawImage(cardImg, 95 + (cardWidth + 5)*i, 320, cardWidth, cardHeight, null);
                     }
-
+                    g.setFont(new Font("Arial", Font.BOLD, 15));
+                    g.drawString(themeMessage, boardWidth-85, 40);
                 } else {
                     //draw hidden card
                     Image hiddenCardImg = new ImageIcon(getClass().getResource("./"+cardTheme+"/BACK.png")).getImage();
@@ -151,6 +150,8 @@ public class Blackjack {
                         Image cardImg = new ImageIcon(getClass().getResource(card.getImagePath())).getImage();
                         g.drawImage(cardImg, 20 + (cardWidth + 5)*(i-splitHandNum), 320, cardWidth, cardHeight, null);
                     }
+                    g.setFont(new Font("Arial", Font.BOLD, 15));
+                    g.drawString(themeMessage, boardWidth-85, 40);
                 }      
 
                 if (!themeButton.isEnabled()) { // change themes
@@ -305,6 +306,7 @@ public class Blackjack {
                                     } else {
                                         doubleButton.setVisible(true);
                                         betMessage = "";
+                                        shuffleMessage = "";
                                         playerBalance -= betAmount;
                                         hitButton.setEnabled(true);
                                         standButton.setEnabled(true);
@@ -388,6 +390,7 @@ public class Blackjack {
                             gamePanel.remove(nextHandButton);
                             splitHandNum -= 1;
                             playerSum = 0;
+                            shuffleMessage = "";
                             for (int i = playerHand.size()-1; i > splitHandNum; i--){
                                 playerHand.remove(i);
                             }
@@ -527,6 +530,7 @@ public class Blackjack {
         hitButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 betMessage = "";
+                shuffleMessage = "";
                 emptyDeckShuffle();
                 splitButton.setVisible(false);
                 doubleButton.setVisible(false);
@@ -546,6 +550,7 @@ public class Blackjack {
         standButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 betMessage = "";
+                shuffleMessage = "";
                 splitButton.setVisible(false);
                 doubleButton.setVisible(false);
                 if (splitHandNum == 0) {
@@ -565,6 +570,7 @@ public class Blackjack {
 
         doubleButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                shuffleMessage = "";
                 if (playerBalance - betAmount < 0) {
                     betMessage = "Not enough left in balance";
                 } else {
@@ -602,6 +608,7 @@ public class Blackjack {
 
         splitButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                shuffleMessage = "";
                 if (playerBalance - betAmount < 0) {
                     betMessage = "Not enough left in balance";
                 } else {
@@ -682,9 +689,6 @@ public class Blackjack {
                 }
             }
         }
-
-        System.out.println("BUILD DECK:");
-        System.out.println(deck);
     }
 
     public void shuffleDeck() {
@@ -695,9 +699,6 @@ public class Blackjack {
             deck.set(i, randomCard);
             deck.set(j, currCard);
         }
-
-        System.out.println("AFTER SHUFFLE:");
-        System.out.println(deck);
     }
 
     public int reducePlayerAce() {
@@ -720,19 +721,14 @@ public class Blackjack {
         if (deck.size() == 0) {
             buildDeck();
             shuffleDeck();
+            shuffleMessage = "Deck shuffled";
+            gamePanel.repaint();
         }
     }
 
 }
 
 /* Things to improve:
- * change colour of buttons
- * Add a message when the deck is shuffled
- * make comments nicer
- * 
- * player sometimes doesn't bust on J J J on start, bust on 10, 10, A (may be because of overwrite hand)
- * 
- * themeMessage "Dark", "Light" appears under the dealer's cards
- *  
+ * make comments nicer  
  * add modularity
  */
