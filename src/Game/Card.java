@@ -1,4 +1,4 @@
-package Game;
+package game;
 
 public class Card {
     int cardWidth = 110; //ratio should be 1/1.4
