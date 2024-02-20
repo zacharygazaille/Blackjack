@@ -27,6 +27,7 @@ public class Blackjack {
             super.paintComponent(g);
 
             try {
+                System.out.println("test");
 
                 //check and change theme
                 theme.checkTheme();
@@ -118,7 +119,10 @@ public class Blackjack {
                             g.drawString(logic.winLoseMessage, 290, 260);
                         }  
                     }
-                    gamePanel.repaint();
+                    if (logic.firstStand) {
+                        logic.firstStand = false;
+                        gamePanel.repaint();
+                    }
 
                     if (logic.isNextRoundButtonTrue == false) {
                         //readying the JFrame for end of round
@@ -133,6 +137,7 @@ public class Blackjack {
                         nextRoundButton.addActionListener(new ActionListener() { 
                             public void actionPerformed(ActionEvent e) {
                                 try {
+                                    logic.firstStand = true;
                                     //attempting to obtain bet from player
                                     logic.roundReset();
                                     logic.betAmount = Double.parseDouble(betField.getText());

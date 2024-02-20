@@ -31,6 +31,9 @@ public class Logic {
     boolean isNextRoundButtonTrue = false;
     String splitMessage = "";
 
+    //logic
+    boolean firstStand = true;
+
     //stand button pressed
     public String standPressed(Hand playerHand, Hand dealerHand) {
         dealerSum = reduceDealerAce();
