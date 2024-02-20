@@ -27,8 +27,6 @@ public class Blackjack {
             super.paintComponent(g);
 
             try {
-                System.out.println("test");
-
                 //check and change theme
                 theme.checkTheme();
                 g.setColor(theme.buttonColor);                
